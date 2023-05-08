@@ -65,7 +65,25 @@ const main = () => {
   gl.shaderSource(fragmentShader, fsSource);
   /*====== 셰이더 컴파일 =============*/
   gl.compileShader(vertexShader);
+  if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+    alert(
+      `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
+        vertexShader
+      )}`
+    );
+    gl.deleteShader(vertexShader);
+    return null;
+  }
   gl.compileShader(fragmentShader);
+  if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+    alert(
+      `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
+        fragmentShader
+      )}`
+    );
+    gl.deleteShader(fragmentShader);
+    return null;
+  }
   /*====== 셰이더 프로그램 생성 =========*/
   const program = gl.createProgram();
   gl.attachShader(program, vertexShader);
@@ -98,7 +116,10 @@ const main = () => {
   gl.enableVertexAttribArray(colorAttribLocation);
   /*====== 그리기 ===================*/
   gl.clearColor(1, 1, 1, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  // gl.clear(gl.COLOR_BUFFER_BIT);
   // 화면에 포인트 그리기
   const mode = gl.TRIANGLES;
   //   const mode = gl.LINE_LOOP;
