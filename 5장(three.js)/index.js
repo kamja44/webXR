@@ -22,7 +22,10 @@ function main() {
   camera.position.set(0, 8, 30);
   // 장면 생성
   const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0.3, 0.5, 0.8);
   // 포그 추가(추후에)...
+  const fog = new THREE.Fog("gray", 1, 100);
+  scene.fog = fog;
   // 지오메트리
   const planeWidth = 256;
   const planeHeight = 128;
@@ -45,16 +48,32 @@ function main() {
   // 재질 및 질감
   const textureLoader = new THREE.TextureLoader();
   const planeTextureMap = textureLoader.load("textures/pebbles.jpg");
-  const planeMaterial = new THREE.MeshLambertMaterial({
+  planeTextureMap.wrapS = THREE.RepeatWrapping;
+  planeTextureMap.wrapT = THREE.RepeatWrapping;
+  planeTextureMap.repeat.set(16, 16);
+  planeTextureMap.minFilter = THREE.NearestFilter;
+  planeTextureMap.anisotropy = gl.getMaxAnisotropy();
+  const planeNorm = textureLoader.load("textures/pebbles_normal.png");
+  planeNorm.wrapS = THREE.RepeatWrapping;
+  planeNorm.wrapT = THREE.RepeatWrapping;
+  planeNorm.minFilter = THREE.NearestFilter;
+  planeNorm.repeat.set(16, 16);
+  const planeMaterial = new THREE.MeshStandardMaterial({
     map: planeTextureMap,
     side: THREE.DoubleSide,
+    normalMap: planeNorm,
   });
+  const sphereNormalMap = textureLoader.load("textures/sphere_normal.png");
+  sphereNormalMap.wrapS = THREE.RepeatWrapping;
+  sphereNormalMap.wrapT = THREE.RepeatWrapping;
+
   // Phong 재질
   const cubeMaterial = new THREE.MeshPhongMaterial({
     color: "pink",
   });
-  const sphereMaterial = new THREE.MeshLambertMaterial({
+  const sphereMaterial = new THREE.MeshStandardMaterial({
     color: "tan",
+    normalMap: sphereNormalMap,
   });
   const plane = new THREE.Mesh(planeGeometry, planeMaterial);
   plane.rotation.x = Math.PI / 2;
@@ -67,6 +86,10 @@ function main() {
   light.position.set(0, 30, 30);
   scene.add(light);
   scene.add(light.target);
+  const ambientColor = 0xffffff;
+  const ambientIntensity = 0.2;
+  const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
+  scene.add(ambientLight);
   // 메시 (MESH)
   const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
   cube.position.set(cubeSize + 1, cubeSize + 1, 0);
@@ -76,7 +99,8 @@ function main() {
   scene.add(sphere);
 
   // 그리기
-  function draw() {
+  function draw(time) {
+    time *= 0.001;
     if (resizeGLToDisplaySize(gl)) {
       const canvas = gl.domElement;
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -85,12 +109,15 @@ function main() {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
     cube.rotation.z += 0.01;
-    gl.render(scene, camera);
-    requestAnimationFrame(draw);
 
     sphere.rotation.x += 0.01;
     sphere.rotation.y += 0.01;
     sphere.rotation.z += 0.01;
+
+    light.position.x = 20 * Math.cos(time);
+    light.position.y = 20 * Math.sin(time);
+    gl.render(scene, camera);
+    requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
   // 애니메이션 루프 설정
