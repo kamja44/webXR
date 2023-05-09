@@ -50,26 +50,26 @@ const main = () => {
 
   /*====== 셰이더 소스 정의 ===========*/
   const vsSource = `
-      attribute vec4 aPosition;
-      attribute vec4 aVertexColor;
-  
-      uniform mat4 uModelViewMatrix;
-      uniform mat4 uProjectionMatrix;
-  
-      varying lowp vec4 vColor;
-  
-      void main() {
-          gl_Position = uProjectionMatrix * uModelViewMatrix * aPosition;
-          vColor = aVertexColor;
-      }
-    `;
+    attribute vec4 aPosition;
+    attribute vec4 aVertexColor;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    varying lowp vec4 vColor;
+
+    void main() {
+        gl_Position = uProjectionMatrix * uModelViewMatrix * aPosition;
+        vColor = aVertexColor;
+    }
+  `;
   const fsSource = `
-      varying lowp vec4 vColor;
-  
-      void main(){
-          gl_FragColor = vColor;
-      }
-    `;
+    varying lowp vec4 vColor;
+
+    void main(){
+        gl_FragColor = vColor;
+    }
+  `;
   /*====== 셰이더 생성 ==============*/
   const vertexShader = gl.createShader(gl.VERTEX_SHADER);
   const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -120,7 +120,10 @@ const main = () => {
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.vertexAttribPointer(colorAttribLocation, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(colorAttribLocation);
-
+    const projMatrixLocation = gl.getUniformLocation(
+      program,
+      "uProjectionMatrix"
+    );
     const modelMatrixLocation = gl.getUniformLocation(
       program,
       "uModelViewMatrix"
@@ -131,10 +134,11 @@ const main = () => {
     const zFar = 100.0;
     const projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-
     const modelViewMatrix = mat4.create();
+    mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -2.0]);
     mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation, [0, 0, 1]);
-
+    mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation, [0, 1, 0]);
+    gl.uniformMatrix4fv(projMatrixLocation, false, projectionMatrix);
     gl.uniformMatrix4fv(modelMatrixLocation, false, modelViewMatrix);
     /*====== 그리기 ===================*/
     gl.clearColor(1, 1, 1, 1);
