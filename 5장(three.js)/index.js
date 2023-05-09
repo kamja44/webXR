@@ -24,26 +24,57 @@ function main() {
   const scene = new THREE.Scene();
   // 포그 추가(추후에)...
   // 지오메트리
+  const planeWidth = 256;
+  const planeHeight = 128;
+  const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
   // 수직 평면 만들기
   // 상자 생성
 
   const cubeSize = 4;
   const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+
+  // 구 만들기
+  const sphereRadius = 3;
+  const sphereWidthSegments = 32;
+  const sphereHeightsSegments = 16;
+  const sphereGeometry = new THREE.SphereGeometry(
+    sphereRadius,
+    sphereWidthSegments,
+    sphereHeightsSegments
+  );
+  // 재질 및 질감
+  const textureLoader = new THREE.TextureLoader();
+  const planeTextureMap = textureLoader.load("textures/pebbles.jpg");
+  const planeMaterial = new THREE.MeshLambertMaterial({
+    map: planeTextureMap,
+    side: THREE.DoubleSide,
+  });
+  // Phong 재질
   const cubeMaterial = new THREE.MeshPhongMaterial({
     color: "pink",
   });
-  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-  cube.position.set(cubeSize + 1, cubeSize + 1, 0);
-  scene.add(cube);
-  // 구 만들기
-  // 재질 및 질감
-
+  const sphereMaterial = new THREE.MeshLambertMaterial({
+    color: "tan",
+  });
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  plane.rotation.x = Math.PI / 2;
+  scene.add(plane);
   // 조명
   const color = 0xffffff;
   const intensity = 1;
   const light = new THREE.DirectionalLight(color, intensity);
+  light.target = plane;
+  light.position.set(0, 30, 30);
   scene.add(light);
+  scene.add(light.target);
   // 메시 (MESH)
+  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  cube.position.set(cubeSize + 1, cubeSize + 1, 0);
+  scene.add(cube);
+  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  sphere.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
+  scene.add(sphere);
+
   // 그리기
   function draw() {
     if (resizeGLToDisplaySize(gl)) {
@@ -56,6 +87,10 @@ function main() {
     cube.rotation.z += 0.01;
     gl.render(scene, camera);
     requestAnimationFrame(draw);
+
+    sphere.rotation.x += 0.01;
+    sphere.rotation.y += 0.01;
+    sphere.rotation.z += 0.01;
   }
   requestAnimationFrame(draw);
   // 애니메이션 루프 설정
