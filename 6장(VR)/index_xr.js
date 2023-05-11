@@ -59,6 +59,46 @@ function Init() {
     normalMap: sphereNormalMap,
   });
 
+  const planeTextureMap = textureLoader.load("textures/pebbles.png");
+  planeTextureMap.wrapS = THREE.RepeatWrapping;
+  planeTextureMap.wrapT = THREE.RepeatWrapping;
+  planeTextureMap.repeat.set(16, 16);
+  planeTextureMap.minFilter = THREE.NearestFilter;
+  planeTextureMap.anisotropy = gl.getMaxAnisotropy();
+  const planeNorm = textureLoader.load("textures/pebbles_normal.png");
+  planeNorm.wrapS = THREE.RepeatWrapping;
+  planeNorm.wrapT = THREE.RepeatWrapping;
+  planeNorm.minFilter = THREE.NearestFilter;
+  planeNorm.repeat.set(16, 16);
+  const planeMaterial = new THREE.MeshStandardMaterial({
+    map: planeTextureMap,
+    side: THREE.DoubleSide,
+    normalMap: planeNorm,
+  });
+
   // MESHES
+  cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  cube.position.set(cubeSize + 1, cubeSize + 1, 0);
+  scene.add(cube);
+
+  sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  sphere.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
+  scene.add(sphere);
+
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  plane.rotation.x = Math.PI / 2;
+
   // LIGHTS
+  const color = 0xffffff;
+  const intensity = 0.7;
+  light = new THREE.DirectionalLight(color, intensity);
+  light.target = plane;
+  light.position.set(0, 30, 30);
+  scene.add(light);
+  scene.add(light.target);
+
+  const ambientColor = 0xffffff;
+  const ambientIntensity = 0.2;
+  const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
+  scene.add(ambientLight);
 }
