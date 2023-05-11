@@ -10,7 +10,7 @@ function Init() {
   gl.setSize(window.innerWidth, window.innerHeight);
   gl.outputEncoding = THREE.sRGBEncoding;
   gl.xr.enable = true;
-  document.body.appendChild(gl.document);
+  document.body.appendChild(gl.domElement);
   document.body.appendChild(VRButton.createButton(gl));
   // create camera
   const angleOfView = 55;
@@ -101,4 +101,37 @@ function Init() {
   const ambientIntensity = 0.2;
   const ambientLight = new THREE.AmbientLight(ambientColor, ambientIntensity);
   scene.add(ambientLight);
+}
+function animate() {
+  gl.setAnimationLoop(render);
+}
+function render(time) {
+  time *= 0.001;
+  if (resizeDisplay) {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  cube.rotation.z += 0.01;
+
+  sphere.rotation.x += 0.01;
+  sphere.rotation.y += 0.01;
+  sphere.rotation.y += 0.01;
+
+  light.position.x = 20 * Math.cos(time);
+  light.position.y = 20 * Math.sin(time);
+  gl.render(scene, camera);
+}
+
+// 크기 조절 업데이트
+function resizeDisplay() {
+  const canvas = gl.domElement;
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const needResize = canvas.width !== width || canvas.height != height;
+  if (needResize) {
+    gl.setSize(width, height, false);
+  }
+  return needResize;
 }

@@ -3,21 +3,34 @@ var VRButton = {
     if (options && options.referenceSpaceType) {
       gl.xr.setReferenceSpaceType(options.referenceSpaceType);
     }
+
     function EnterVR() {
+      // label button
       button.innerHTML = "Enter XR";
       var currentSession = null;
-
       function onSessionStarted(session) {
-        session.addEventListener("end", onSeeionEnded);
-        gl.xr.setSession(session);
+        session.addEventListener("end", onSessionEnded);
+
         button.textContent = "Exit XR";
         currentSession = session;
+        setupWebGLLayer().then(() => {
+          gl.xr.setSession(currentSession);
+        });
       }
 
-      function onSessionEnded() {
+      function onSessionEnded(/*event*/) {
         currentSession.removeEventListener("end", onSessionEnded);
         button.textContent = "Enter XR";
         currentSession = null;
+      }
+
+      function setupWebGLLayer() {
+        var glContext = gl.getContext();
+        return glContext.makeXRCompatible().then(() => {
+          currentSession.updateRenderState({
+            baseLayer: new XRWebGLLayer(currentSession, glContext),
+          });
+        });
       }
 
       button.onclick = () => {
@@ -49,6 +62,8 @@ var VRButton = {
             NotFound();
           }
         });
+      button.setAttribute("id", "btn");
+      return button;
     } else {
       if (window.isSecureContext === false) {
         console.log("WebXR needs HTTPS");
