@@ -3,6 +3,7 @@ import * as THREE from "./node_modules/three/build/three.module/js";
 var btn, gl, glCanvas, camera, scene, renderer, cube;
 // 전역 xr 값
 var xrSession = null;
+loadScene();
 function loadScene() {
   // WebGL 콘텍스트와 Three.js 장면의 구성 요소 설정
 
