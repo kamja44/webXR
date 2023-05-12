@@ -73,22 +73,65 @@ function init() {
 }
 function onRequestSession() {
   // XR 세션 요청 처리
+  console.log(`requesting Session`);
+  navigator.xr
+    .requestSession("immersive-ar", { requiredFeatures: ["viewer", "local"] })
+    .then(onSessionStarted)
+    .catch((reason) => {
+      console.log("requiest disabled: " + reason.log);
+    });
 }
-function onSessionStarted() {
+function onSessionStarted(session) {
   // XR 세션이 생성되면 처리
+  console.log(`starting session`);
+
+  // [버튼 요소의 상태 변경]
+
+  // 이벤트 리스너 추가 / 삭제
+  btn.removeEventListener("click", onRequestSession);
+  btn.addEventListener("click", endXRSession);
+
+  // 버튼의 텍스트 업데이트
+  btn.innerHTML = "STOP AR";
+
+  // XR 세션에 참조 저장
+  xrSession = session;
+
+  setupWebGLLayer().then(() => {
+    renderer.xr.setReferenceSpaceType("local");
+    renderer.xr.setSession(xrSession);
+    animate();
+  });
 }
+
 function setupWebGLLayer() {
   // WebGL 콘텍스트를 XR 세션에 연결
+  return gl.makeXRCompatible().then(() => {
+    xrSession.updateRenderState({
+      baseLayer: new XRWebGLLayer(xrSession, gl),
+    });
+  });
 }
 function animate() {
   // 애니메이션 루프 시작
+  renderer.setAnimationLoop(render);
 }
 function render(time) {
   // GPU에 그리기 명령 실행
+  renderer.render(scene, camera);
 }
 function endXRSession() {
   // XR 세션 종료
+  if (xrSession) {
+    console.log("ending session...");
+    xrSession.end().then(onSessionEnd);
+  }
 }
 function onSessionEnd() {
   // XR 세션의 종료 이벤트 처리
+  xrSession = null;
+  console.log("session ended");
+  btn.innerHTML = "START AR";
+  btn.removeEventListener("click", endXRSession);
+  btn.addEventListener("click", onRequestSession);
 }
