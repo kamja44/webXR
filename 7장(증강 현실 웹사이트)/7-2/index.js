@@ -152,7 +152,35 @@ function animate() {
   // 애니메이션 루프 시작
   renderer.setAnimationLoop(render);
 }
-function render(time) {
+function render(time, frame) {
+  if (frame) {
+    var referenceSpace = renderer.xr.getRegerenceSpace("local");
+    var session = frame.session;
+    xrViewerPose = frame.getViewerPose(referenceSpace);
+    if (hitTestSourceRequested === false) {
+      session.requestReferenceSpace("viewer").then((referenceSpace) => {
+        session
+          .requestHitTestSource({ space: referenceSpace })
+          .then((source) => {
+            hitTestSource = source;
+          });
+      });
+      session.addEventListener("end", () => {
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+      });
+    }
+    if (hitTestSource) {
+      var hitTestResults = frame.getHitTestResults(hitTestSource);
+      if (hitTestResults.length > 0) {
+        var hit = hitTestResults[0];
+        reticle.visible = true;
+        reticle.matrix.fromArray(hit.getPost(referenceSpace).transform.matrix);
+      } else {
+        reticle.visible = false;
+      }
+    }
+  }
   // GPU에 그리기 명령 실행
   renderer.render(scene, camera);
 }
