@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-entity
+        geometry="primitive: plane; height: 10; width: 10"
+        rotation="-90 0 0"
+        material="side: double color: #fff"
+      ></a-entity>
+
+      <a-assets>
+        <img id="brick" src="./textures/brick_mat.jpg" />
+      </a-assets>
+      <a-box
+        position="0.3, 1.5 -0.5"
+        material="src: #brick; roughness: 1;"
+        depth="0.5"
+        height="0.5"
+        width="0.5"
+      ></a-box>
+    </a-scene>
+  </body>
+</html>
