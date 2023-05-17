@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script> -->
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script>
+      AFRAME.registerComponent("texture-loader", {
+        schema: {
+          src: {},
+          material_tex: {},
+          mesh: {},
+          texture: {},
+        },
+        init: function () {
+          console.log("initialized");
+        },
+        update: function () {
+          this.data.texture = new THREE.TextureLoader().load(this.data.src);
+        },
+      });
+      this.data.texture.anisotropy = 16;
+      this.data.texture.minFilter = THREE.NearestFilter;
+      this.data.texture.maxFilter = THREE.NearestFilter;
+
+      this.data.material_tex = new THREE.MeshLambertMaterial({
+        map: this.data.texture,
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-box
+        texture-loader="src: ../textures/brick_mat.jpg"
+        position="0.3, 1.5, -0.5"
+        depth="0.5"
+        height="0.5"
+        width="0.5"
+      ></a-box>
+    </a-scene>
+  </body>
+</html>
